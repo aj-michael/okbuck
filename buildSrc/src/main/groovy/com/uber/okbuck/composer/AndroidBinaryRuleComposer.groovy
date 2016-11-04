@@ -17,15 +17,17 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
         // no instance
     }
 
-    static AndroidBinaryRule compose(AndroidAppTarget target, List<String> deps, String manifestRuleName,
-                                     String keystoreRuleName) {
+    static AndroidBinaryRule compose(AndroidAppTarget target, List<String> deps) {
         Set<String> mappedCpuFilters = target.cpuFilters.collect { String cpuFilter ->
             CPU_FILTER_MAP.get(cpuFilter)
         }.findAll { String cpuFilter -> cpuFilter != null }
-
-        return new AndroidBinaryRule(bin(target), ["PUBLIC"], deps, manifestRuleName, keystoreRuleName,
-                target.multidexEnabled, target.linearAllocHardLimit, target.primaryDexPatterns,
-                target.exopackage != null, mappedCpuFilters, target.minifyEnabled,
-                target.proguardConfig, target.placeholders, target.extraOpts, target.includesVectorDrawables)
+        return new AndroidBinaryRule(
+                bin(target),
+                ["//visibility:public"],
+                deps,
+                target.manifest,
+                [],
+                target.main.sources
+        )
     }
 }

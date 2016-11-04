@@ -2,27 +2,45 @@ package com.uber.okbuck.rule
 
 final class AndroidBinaryRule extends BuckRule {
 
-    private final String mManifest
-    private final String mKeystore
-    private final boolean mMultidexEnabled
-    private final int mLinearAllocHardLimit
-    private final Set<String> mPrimaryDexPatterns
-    private final boolean mExopackage
-    private final Set<String> mCpuFilters
-    private final boolean mMinifyEnabled
-    private final String mProguardConfig
-    private final Map<String, Object> mPlaceholders
-    private final Set<String> mExtraOpts
-    private final boolean mIncludesVectorDrawables
+    private final String manifest
+    private final List<String> srcs
+    private final Set<String> srcGlobs
+    //private final String mKeystore
+    //private final boolean mMultidexEnabled
+    //private final int mLinearAllocHardLimit
+    //private final Set<String> mPrimaryDexPatterns
+    //private final boolean mExopackage
+    //private final Set<String> mCpuFilters
+    //private final boolean mMinifyEnabled
+    //private final String mProguardConfig
+    //private final Map<String, Object> mPlaceholders
+    //private final Set<String> mExtraOpts
+    //private final boolean mIncludesVectorDrawables
 
-    AndroidBinaryRule(String name, List<String> visibility, List<String> deps, String manifest, String keystore,
-                      boolean multidexEnabled, int linearAllocHardLimit, Set<String> primaryDexPatterns,
-                      boolean exopackage, Set<String> cpuFilters, boolean minifyEnabled,
-                      String proguardConfig, Map<String, Object> placeholders, Set<String> extraOpts,
-                      boolean includesVectorDrawables) {
+    AndroidBinaryRule(
+            String name,
+            List<String> visibility,
+            List<String> deps,
+            String manifest,
+            List<String> srcs,
+            Set<String> srcGlobs
+            //String keystore,
+            //boolean multidexEnabled,
+            //int linearAllocHardLimit,
+            //Set<String> primaryDexPatterns,
+            //boolean exopackage,
+            //Set<String> cpuFilters,
+            //boolean minifyEnabled,
+            //String proguardConfig,
+            //Map<String, Object> placeholders,
+            //Set<String> extraOpts,
+            //boolean includesVectorDrawables
+    ) {
         super("android_binary", name, visibility, deps)
-
-        mManifest = manifest
+        this.manifest = manifest
+        this.srcs = srcs
+        this.srcGlobs = srcGlobs
+        /*
         mKeystore = keystore
         mMultidexEnabled = multidexEnabled
         mLinearAllocHardLimit = linearAllocHardLimit
@@ -34,12 +52,25 @@ final class AndroidBinaryRule extends BuckRule {
         mPlaceholders = placeholders
         mExtraOpts = extraOpts
         mIncludesVectorDrawables = includesVectorDrawables
+        */
     }
 
     @Override
     protected final void printContent(PrintStream printer) {
-        printer.println("\tmanifest = '${mManifest}',")
-        printer.println("\tkeystore = '${mKeystore}',")
+        printer.println("\tmanifest = '${manifest}',")
+        if (srcs.empty) {
+            printer.println("\tsrcs = glob([")
+        } else {
+            printer.println("\tsrcs = [")
+            for (String src : srcs) {
+                printer.println("\t\t'${src}',")
+            }
+            printer.println("\t] + glob([")
+        }
+        for (String srcGlob : srcGlobs) {
+            printer.println("\t\t'${srcGlob}',")
+        }
+        /*printer.println("\tkeystore = '${mKeystore}',")
         if (mExopackage) {
             printer.println("\texopackage_modes = ['secondary_dex'],")
         }
@@ -84,5 +115,6 @@ final class AndroidBinaryRule extends BuckRule {
         mExtraOpts.each { String option ->
             printer.println("\t${option},")
         }
+        */
     }
 }

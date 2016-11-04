@@ -33,6 +33,7 @@ abstract class AndroidRule extends BuckRule {
             String name,
             List<String> visibility,
             List<String> deps,
+            Collection<String> resources,
             Set<String> srcTargets,
             Set<String> srcSet,
             String manifest,

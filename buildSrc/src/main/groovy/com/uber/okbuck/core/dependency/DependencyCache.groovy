@@ -25,7 +25,12 @@ class DependencyCache {
         cacheDir = new File(rootProject.projectDir, cacheDirPath)
         cacheDir.mkdirs()
         if (createBuckFile) {
-            FileUtil.copyResourceToProject("thirdparty/BUCK_FILE", new File(cacheDir, "BUCK"))
+            FileUtil.copyResourceToProject(
+                    "thirdparty/BUILD",
+                    new File(cacheDir.parent, "BUILD"))
+            FileUtil.copyResourceToProject(
+                    "thirdparty/create_imports.bzl",
+                    new File(cacheDir.parent, "create_imports.bzl"))
         }
     }
 

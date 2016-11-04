@@ -57,23 +57,23 @@ abstract class JavaRule extends BuckRule {
             printer.println("\t]),")
         }
 
-        if (mTestTargets) {
+        /*if (mTestTargets) {
             printer.println("\ttests = [")
             for (String testTarget : mTestTargets) {
                 printer.println("\t\t'${testTarget}',")
             }
             printer.println("\t],")
-        }
+        }*/
 
         if (mResourcesDir) {
             printer.println("\tresources = glob([")
             printer.println("\t\t'${mResourcesDir}/**',")
             printer.println("\t]),")
 
-            printer.println("\tresources_root = '${mResourcesDir}',")
+            //printer.println("\tresources_root = '${mResourcesDir}',")
         }
 
-        if (!mAnnotationProcessors.empty) {
+        /*if (!mAnnotationProcessors.empty) {
             printer.println("\tannotation_processors = [")
             mAnnotationProcessors.sort().each { String processor ->
                 printer.println("\t\t'${processor}',")
@@ -87,34 +87,34 @@ abstract class JavaRule extends BuckRule {
                 }
                 printer.println("\t],")
             }
-        }
+        }*/
 
         if (!mProvidedDeps.empty) {
-            printer.println("\tprovided_deps = [")
+            printer.println("\truntime_deps = [")
             for (String dep : mProvidedDeps.sort()) {
                 printer.println("\t\t'${dep}',")
             }
             printer.println("\t],")
         }
 
-        printer.println("\tsource = '${mSourceCompatibility}',")
-        printer.println("\ttarget = '${mTargetCompatibility}',")
-        mPostprocessClassesCommands.print(printer)
+        //printer.println("\tsource = '${mSourceCompatibility}',")
+        //printer.println("\ttarget = '${mTargetCompatibility}',")
+        //mPostprocessClassesCommands.print(printer)
 
-        if (!mOptions.empty) {
+        /*if (!mOptions.empty) {
             printer.println("\textra_arguments = [")
             mOptions.each { String option ->
                 printer.println("\t\t'${option}',")
             }
             printer.println("\t],")
-        }
+        }*/
 
-        if (mLabels) {
+        /*if (mLabels) {
             printer.println("\tlabels = [")
             mLabels.each { String label ->
                 printer.println("\t\t'${label}',")
             }
             printer.println("\t],")
-        }
+        }*/
     }
 }

@@ -127,14 +127,14 @@ if (project.file("buildSrc").exists()) {
         ]
         buckProjects = project.subprojects.findAll { it.name != "plugin" }
 
-        intellij {
-            sources = true
-        }
+//        intellij {
+//            sources = true
+//        }
 
-        test {
-            espresso = true
-            robolectric = true
-        }
+//        test {
+//            espresso = true
+//            robolectric = true
+//        }
 
         gradleGen {
             options = ["--offline", "-Dorg.gradle.configureondemand=true", "-Dorg.gradle.parallel=true"]
