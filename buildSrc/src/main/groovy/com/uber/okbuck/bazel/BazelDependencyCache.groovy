@@ -1,7 +1,7 @@
 package com.uber.okbuck.bazel
 
-import com.uber.okbuck.core.util.FileUtil
 import com.uber.okbuck.core.dependency.DependencyCache
+import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
 final class BazelDependencyCache extends DependencyCache {
@@ -10,11 +10,15 @@ final class BazelDependencyCache extends DependencyCache {
         super(rootProject, cacheDirPath, true, false, true)
         File cacheBuildFile = new File(cacheDir.parent, "BUILD")
         if (!cacheBuildFile.exists()) {
-            FileUtil.copyResourceToProject("bazel/BUILD", cacheBuildFile)
+            FileUtils.copyURLToFile(
+                    this.class.getClassLoader().getResource("com/uber/okbuck/bazel/BUILD"),
+                    cacheBuildFile)
         }
         File cacheBzlFile = new File(cacheDir.parent, "create_imports.bzl")
         if (!cacheBzlFile.exists()) {
-            FileUtil.copyResourceToProject("bazel/create_imports.bzl", cacheBzlFile)
+            FileUtils.copyURLToFile(
+                    this.class.getClassLoader().getResource("com/uber/okbuck/bazel/create_imports.bzl"),
+                    cacheBzlFile)
         }
     }
 }

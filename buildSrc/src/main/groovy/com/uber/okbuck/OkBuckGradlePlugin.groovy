@@ -35,7 +35,6 @@ class OkBuckGradlePlugin implements Plugin<Project> {
 
     static final String GROUP = "okbuck"
 
-    static DependencyCache depCache
     static Logger LOGGER
 
     void apply(Project project) {
@@ -68,7 +67,7 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 generate(project)
             }
 
-            depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, true, intellij.sources)
+            DependencyCache.depCache = new DependencyCache(project, DEFAULT_CACHE_PATH, true, true, intellij.sources)
 
             if (test.robolectric) {
                 Task fetchRobolectricRuntimeDeps = project.task('fetchRobolectricRuntimeDeps')

@@ -5,6 +5,7 @@ import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
 
 class DependencyCache {
+    static DependencyCache depCache
 
     final Project rootProject
     final File cacheDir

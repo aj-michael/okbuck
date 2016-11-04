@@ -6,15 +6,12 @@ import com.uber.okbuck.core.model.AndroidAppTarget
 final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
     static AndroidBinaryRule compose(
             AndroidAppTarget target,
-            List<String> deps,
-            String manifest,
-            String keystore) {
+            List<String> deps) {
         return new AndroidBinaryRule(
                 bin(target),
                 ["//visibility:public"],
                 deps,
-                manifest,
-                keystore,
+                target.manifest,
                 target.proguardConfig,
                 target.placeholders)
     }

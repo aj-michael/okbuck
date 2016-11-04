@@ -7,13 +7,7 @@ final class JavaLibraryRule extends JavaRule {
             List<String> visibility,
             List<String> deps,
             Set<String> srcSet,
-            Set<String> annotationProcessors,
-            Set<String> aptDeps,
-            Set<String> providedDeps,
-            String resourcesDir,
-            String sourceCompatibility,
-            String targetCompatibility,
-            List<String> options) {
+            String resourcesDir) {
 
         super(
                 "java_library",
@@ -21,12 +15,7 @@ final class JavaLibraryRule extends JavaRule {
                 visibility,
                 deps,
                 srcSet,
-                annotationProcessors,
-                aptDeps,
-                providedDeps,
-                resourcesDir,
-                sourceCompatibility,
-                targetCompatibility,
-                options)
+                new HashSet<String>(),
+                resourcesDir)
     }
 }

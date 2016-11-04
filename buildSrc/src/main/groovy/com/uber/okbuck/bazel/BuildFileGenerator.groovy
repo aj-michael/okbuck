@@ -9,7 +9,6 @@ import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.core.model.ProjectType
 import com.uber.okbuck.core.model.Target
 import com.uber.okbuck.core.util.ProjectUtil
-import com.uber.okbuck.extension.OkBuckExtension
 import com.uber.okbuck.rule.BuckRule
 import org.gradle.api.Project
 
@@ -90,37 +89,6 @@ final class BuildFileGenerator {
         List<BuckRule> rules = []
         List<BuckRule> androidLibRules = []
 
-        // Aidl
-        /*
-        List<BuckRule> aidlRules = target.aidl.collect { String aidlDir ->
-
-            GenAidlRuleComposer.compose(target, aidlDir)
-        }
-        List<String> aidlRuleNames = aidlRules.collect { GenAidlRule rule ->
-            ":${rule.name}"
-        }
-        androidLibRules.addAll(aidlRules)
-        */
-
-        // Res
-//        androidLibRules.addAll(target.resources.collect { AndroidTarget.ResBundle resBundle ->
-//            AndroidResourceRuleComposer.compose(target, resBundle)
-//        })
-
-        // BuildConfig
-        //androidLibRules.add(AndroidBuildConfigRuleComposer.compose(target))
-
-        // Apt
-        /*
-        List<String> aptDeps = []
-        if (!target.annotationProcessors.empty && !target.apt.externalDeps.empty) {
-            AptRule aptRule = AptRuleComposer.compose(target)
-            rules.add(aptRule)
-            aptDeps.add(":${aptRule.name}")
-        }
-        aptDeps.addAll(BuckRuleComposer.targets(target.apt.targetDeps))
-        */
-
         // Jni
         androidLibRules.addAll(target.jniLibs.collect { String jniLib ->
             PreBuiltNativeLibraryRuleComposer.compose(target, jniLib)
@@ -129,22 +97,6 @@ final class BuildFileGenerator {
         List<String> deps = androidLibRules.collect { BuckRule rule ->
             ":${rule.name}"
         } as List<String>
-        //deps.addAll(extraDeps)
-
-        // Gradle generate sources tasks
-        //OkBuckExtension okbuck = target.rootProject.okbuck
-        /*
-        GradleGenExtension gradleGen = okbuck.gradleGen
-        List<GradleSourceGenRule> sourcegenRules = GradleSourceGenRuleComposer.compose(target, gradleGen)
-        List<ZipRule> zipRules = sourcegenRules.collect { GradleSourceGenRule sourcegenRule ->
-            ZipRuleComposer.compose(sourcegenRule)
-        }
-        rules.addAll(sourcegenRules)
-        rules.addAll(zipRules)
-        Set<String> zipRuleNames = zipRules.collect { ZipRule rule ->
-            ":${rule.name}"
-        }
-        */
 
         // Lib
         androidLibRules.add(AndroidLibraryRuleComposer.compose(
@@ -170,29 +122,8 @@ final class BuildFileGenerator {
             }*/
         }
 
-        //AndroidManifestRule manifestRule = AndroidManifestRuleComposer.compose(target)
-        //rules.add(manifestRule)
-
-        //String keystoreRuleName = KeystoreRuleComposer.compose(target)
-
-        /*if (target.exopackage) {
-            ExopackageAndroidLibraryRule exoPackageRule =
-                    ExopackageAndroidLibraryRuleComposer.compose(
-                            target)
-            rules.add(exoPackageRule)
-            deps.add(":${exoPackageRule.name}")
-        }*/
-
-        rules.add(AndroidBinaryRuleComposer.compose(target, deps, null, null))
+        rules.add(AndroidBinaryRuleComposer.compose(target, deps))
 
         return rules
-    }
-
-    private static List<String> filterAndroidDepRules(List<BuckRule> rules) {
-        return rules.findAll { BuckRule rule ->
-            rule instanceof AndroidLibraryRule //|| rule instanceof AndroidResourceRule
-        }.collect {
-            ":${it.name}"
-        }
     }
 }

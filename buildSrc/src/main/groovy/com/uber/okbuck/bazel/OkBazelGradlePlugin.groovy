@@ -1,8 +1,7 @@
 package com.uber.okbuck.bazel
 
-import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.config.BUCKFile
-import com.uber.okbuck.core.util.FileUtil
+import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.extension.OkBuckExtension
 import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
@@ -26,17 +25,23 @@ class OkBazelGradlePlugin implements Plugin<Project> {
             okBazel << {
                 File workspaceFile = project.file("WORKSPACE")
                 if (!workspaceFile.exists()) {
-                    FileUtil.copyResourceToProject("bazel/WORKSPACE", workspaceFile)
+                    FileUtils.copyURLToFile(
+                            this.class.getClassLoader().getResource("com/uber/okbuck/bazel/WORKSPACE"),
+                            workspaceFile)
                 }
 
                 BuildFileGenerator.generate(project).each { Project subProject, BUCKFile buildFile ->
-                    PrintStream printer = new NoTabsPrintStream(subProject.file("BUILD"))
+                    PrintStream printer = new PrintStream(subProject.file("BUILD")) {
+                        @Override
+                        public void println(String s) {
+                            super.println(s.replaceAll("\t", "    "))
+                        }
+                    }
                     buildFile.print(printer)
                     IOUtils.closeQuietly(printer)
                 }
             }
-            // Yes, this is an awful hack. But I'm trying not to refactor existing OkBuck code.
-            OkBuckGradlePlugin.depCache = new BazelDependencyCache(project, DEFAULT_CACHE_PATH)
+            DependencyCache.depCache = new BazelDependencyCache(project, DEFAULT_CACHE_PATH)
         }
     }
 }

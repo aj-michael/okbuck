@@ -20,9 +20,7 @@ abstract class JavaRule extends BuckRule {
         super(ruleType, name, visibility, deps)
         mSrcSet = srcSet
         mResourcesDir = resourcesDir
-        mOptions = options
         mProvidedDeps = providedDeps
-        mLabels = labels
     }
 
     @Override
