@@ -18,16 +18,14 @@ final class BazelDependencyCache extends DependencyCache {
         super(rootProject, cacheDirPath, true, false, true)
         File cacheBuildFile = new File(cacheDir.parent, "BUILD")
         if (!cacheBuildFile.exists()) {
-            cacheBuildFile.write """
-package(default_visibility = ["//visibility:public"])
+            cacheBuildFile.write """package(default_visibility = ["//visibility:public"])
 load("//okbuck:create_imports.bzl", "create_imports")
 create_imports()
 """
         }
         File cacheBzlFile = new File(cacheDir.parent, "create_imports.bzl")
         if (!cacheBzlFile.exists()) {
-            cacheBzlFile.write """
-def create_imports():
+            cacheBzlFile.write """def create_imports():
   for jar in native.glob(['cache/*.jar']):
     native.java_import(
         name = jar.split("/")[1],

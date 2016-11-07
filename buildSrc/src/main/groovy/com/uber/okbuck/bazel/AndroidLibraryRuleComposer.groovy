@@ -24,7 +24,6 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
                 target.main.sources,
                 target.manifest,
                 providedDeps,
-                "",
                 target.resources)
     }
 }

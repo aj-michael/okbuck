@@ -8,7 +8,6 @@ final class AndroidLibraryRule extends BuckRule {
     private final Set<String> srcSet
     private final String manifest
     private final Set<String> providedDeps
-    private final String resourcesDir
     private final String packageName
     private final Set<AndroidTarget.ResBundle> resources
 
@@ -20,13 +19,11 @@ final class AndroidLibraryRule extends BuckRule {
             Set<String> srcSet,
             String manifest,
             Set<String> providedDeps,
-            String resourcesDir,
             Set<AndroidTarget.ResBundle> resources) {
         super("android_library", name, visibility, deps)
         this.srcSet = srcSet
         this.manifest = manifest
         this.providedDeps = providedDeps
-        this.resourcesDir = resourcesDir
         this.packageName = packageName
         this.resources = resources
     }
@@ -54,8 +51,11 @@ final class AndroidLibraryRule extends BuckRule {
         }
         printer.println("\t]),")
         if (!resources.isEmpty()) {
-            printer.println("\tassets_dir = '${resources.first().assetsDir}',")
-            printer.println("\tassets = glob(['${resources.first().assetsDir}/**']),")
+            def assetsDir = resources.first().assetsDir
+            if (assetsDir != null) {
+                printer.println("\tassets_dir = '${resources.first().assetsDir}',")
+                printer.println("\tassets = glob(['${resources.first().assetsDir}/**']),")
+            }
         }
 
         if (manifest != null && !manifest.isEmpty()) {

@@ -18,7 +18,9 @@ final class BuildFileGenerator {
 
     static Map<Project, BUCKFile> generate(Project rootProject) {
         rootProject.okbuck.buckProjects.each { Project project ->
-            resolve(project)
+            getTargets(project).each { String name, Target target ->
+                target.resolve()
+            }
         }
 
         Map<Project, List<BuckRule>> projectRules =
@@ -34,68 +36,34 @@ final class BuildFileGenerator {
         } as Map<Project, BUCKFile>
     }
 
-    private static void resolve(Project project) {
-        getTargets(project).each { String name, Target target ->
-            target.resolve()
-        }
-    }
-
     private static List<BuckRule> createRules(Project project) {
-        List<BuckRule> rules = []
-        ProjectType projectType = ProjectUtil.getType(project)
+        def rules = []
         getTargets(project).each { String name, Target target ->
-            switch (projectType) {
+            switch (ProjectUtil.getType(project)) {
                 case ProjectType.JAVA_LIB:
-                    rules.addAll(createRules((JavaLibTarget) target))
+                    rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget)
                     break
                 case ProjectType.JAVA_APP:
-                    rules.addAll(createRules((JavaAppTarget) target))
+                    rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget)
+                    rules << JavaBinaryRuleComposer.compose(target as JavaAppTarget)
                     break
                 case ProjectType.ANDROID_LIB:
-                    rules.addAll(createRules((AndroidLibTarget) target))
+                    rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
                     break
                 case ProjectType.ANDROID_APP:
-                    List<BuckRule> targetRules = createRules((AndroidAppTarget) target)
-                    rules.addAll(targetRules)
+                    rules += createRules((AndroidAppTarget) target)
                     break
                 default:
                     break
             }
         }
-
-        // de-dup rules by name
-        rules = rules.unique { rule ->
-            rule.name
-        }
-
         return rules
-    }
-
-    private static List<BuckRule> createRules(JavaLibTarget target) {
-        List<BuckRule> rules = []
-        rules.add(JavaLibraryRuleComposer.compose(
-                target))
-        return rules
-    }
-
-    private static List<BuckRule> createRules(JavaAppTarget target) {
-        List<BuckRule> rules = []
-        rules.addAll(createRules((JavaLibTarget) target))
-        rules.add(JavaBinaryRuleComposer.compose(target))
-        return rules
-    }
-
-    private static List<BuckRule> createRules(AndroidLibTarget target) {
-        return [AndroidLibraryRuleComposer.compose(target)]
     }
 
     private static List<BuckRule> createRules(AndroidAppTarget target) {
-        List<BuckRule> rules = []
-        List<String> deps = [":${AndroidBuckRuleComposer.src(target)}"]
-
-        Set<BuckRule> libRules = createRules((AndroidLibTarget) target)
-        rules.addAll(libRules)
-        rules.add(AndroidBinaryRuleComposer.compose(target, deps))
+        def rules = []
+        rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
+        rules << AndroidBinaryRuleComposer.compose(target, [":${AndroidBuckRuleComposer.src(target)}"])
         return rules
     }
 }
