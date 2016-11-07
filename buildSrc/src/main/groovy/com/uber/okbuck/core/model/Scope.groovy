@@ -30,7 +30,7 @@ class Scope {
           Set<File> sourceDirs = [],
           File resDir = null,
           List<String> jvmArguments = [],
-          DependencyCache depCache = DependencyCache.depCache) {
+          DependencyCache depCache = OkBuckGradlePlugin.depCache) {
 
         this.project = project
         sources = FileUtil.getAvailable(project, sourceDirs)

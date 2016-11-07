@@ -1,9 +1,9 @@
 package com.uber.okbuck.bazel
 
+import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.config.BUCKFile
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.extension.OkBuckExtension
-import org.apache.commons.io.FileUtils
 import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -25,9 +25,14 @@ class OkBazelGradlePlugin implements Plugin<Project> {
             okBazel << {
                 File workspaceFile = project.file("WORKSPACE")
                 if (!workspaceFile.exists()) {
-                    FileUtils.copyURLToFile(
-                            this.class.getClassLoader().getResource("com/uber/okbuck/bazel/WORKSPACE"),
-                            workspaceFile)
+                    workspaceFile.write """
+android_sdk_repository(
+    name = "androidsdk",
+    path = "",
+    build_tools_version = "24.0.0",
+    api_level = 24,
+)
+"""
                 }
 
                 BuildFileGenerator.generate(project).each { Project subProject, BUCKFile buildFile ->
@@ -41,7 +46,8 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                     IOUtils.closeQuietly(printer)
                 }
             }
-            DependencyCache.depCache = new BazelDependencyCache(project, DEFAULT_CACHE_PATH)
+            OkBuckGradlePlugin.depCache =
+                    new DependencyCache(project, DEFAULT_CACHE_PATH, true, false, true)
         }
     }
 }

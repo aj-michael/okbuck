@@ -11,7 +11,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
 
     static JavaLibraryRule compose(JavaLibTarget target) {
         List<String> deps = []
-        deps.addAll(external(target.main.externalDeps))
+        deps.addAll(BazelDependencyCache.external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
 
         new JavaLibraryRule(
@@ -19,8 +19,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
                 ["//visibility:public"],
                 deps,
                 target.main.sources,
-                target.main.resourcesDir,
-                target.main.jvmArgs)
+                target.main.resourcesDir)
     }
 
 }

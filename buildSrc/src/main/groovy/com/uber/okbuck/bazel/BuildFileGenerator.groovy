@@ -86,27 +86,7 @@ final class BuildFileGenerator {
     }
 
     private static List<BuckRule> createRules(AndroidLibTarget target) {
-        List<BuckRule> rules = []
-        List<BuckRule> androidLibRules = []
-
-        // Jni
-        androidLibRules.addAll(target.jniLibs.collect { String jniLib ->
-            PreBuiltNativeLibraryRuleComposer.compose(target, jniLib)
-        })
-
-        List<String> deps = androidLibRules.collect { BuckRule rule ->
-            ":${rule.name}"
-        } as List<String>
-
-        // Lib
-        androidLibRules.add(AndroidLibraryRuleComposer.compose(
-                target,
-                deps
-        ))
-
-        rules.addAll(androidLibRules)
-        return rules
-
+        return [AndroidLibraryRuleComposer.compose(target)]
     }
 
     private static List<BuckRule> createRules(AndroidAppTarget target) {
@@ -115,15 +95,7 @@ final class BuildFileGenerator {
 
         Set<BuckRule> libRules = createRules((AndroidLibTarget) target)
         rules.addAll(libRules)
-
-        libRules.each { BuckRule rule ->
-            /*if (rule instanceof AndroidResourceRule && rule.name != null) {
-                deps.add(":${rule.name}")
-            }*/
-        }
-
         rules.add(AndroidBinaryRuleComposer.compose(target, deps))
-
         return rules
     }
 }

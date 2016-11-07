@@ -9,6 +9,7 @@ final class AndroidBinaryRuleComposer extends AndroidBuckRuleComposer {
             List<String> deps) {
         return new AndroidBinaryRule(
                 bin(target),
+                target.getPackage(),
                 ["//visibility:public"],
                 deps,
                 target.manifest,
