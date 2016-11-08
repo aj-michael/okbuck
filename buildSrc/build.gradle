@@ -16,6 +16,7 @@ dependencies {
     compile 'commons-io:commons-io:2.5'
     compile 'commons-lang:commons-lang:2.6'
     compile 'org.apache.maven:maven-artifact:3.3.9'
+    compile 'org.apache.maven:maven-ant-tasks:2.1.3'
 
     testCompile 'junit:junit:4.12'
 }
@@ -35,7 +36,7 @@ task sourcesJar(type: Jar) {
     classifier = 'sources'
 }
 
-def publishVersion = '0.8.5'
+def publishVersion = '0.8.7'
 group = 'com.uber'
 version = publishVersion
 def siteUrl = 'https://github.com/uber/okbuck'

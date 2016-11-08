@@ -1,6 +1,5 @@
 package com.uber.okbuck.composer
 
-import com.uber.okbuck.constant.BuckConstants
 import com.uber.okbuck.core.model.JavaLibTarget
 import com.uber.okbuck.generator.RetroLambdaGenerator
 import com.uber.okbuck.printable.PostProcessClassessCommands
@@ -47,7 +46,7 @@ final class JavaLibraryRuleComposer extends JavaBuckRuleComposer {
 
         new JavaLibraryRule(
                 src(target),
-                ["PUBLIC"],
+                ["//visibility:public"],
                 deps,
                 target.main.sources,
                 target.annotationProcessors,
