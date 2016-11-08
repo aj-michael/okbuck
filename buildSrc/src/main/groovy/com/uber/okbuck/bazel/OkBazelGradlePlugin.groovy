@@ -26,7 +26,7 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                 if (!workspaceFile.exists()) {
                     workspaceFile.write """android_sdk_repository(
     name = "androidsdk",
-    path = "",
+    path = "${System.getenv("ANDROID_HOME")}",
     build_tools_version = "24.0.0",
     api_level = 24,
 )
