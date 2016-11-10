@@ -19,7 +19,6 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         return new AndroidLibraryRule(
                 src(target),
                 target.getPackage(),
-                ["//visibility:public"],
                 deps,
                 target.main.sources,
                 target.manifest,

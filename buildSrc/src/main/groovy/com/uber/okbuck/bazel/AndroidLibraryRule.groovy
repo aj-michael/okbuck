@@ -4,7 +4,8 @@ import com.uber.okbuck.core.model.AndroidTarget
 import com.uber.okbuck.rule.BuckRule
 
 final class AndroidLibraryRule extends BuckRule {
-    private final Set<String> srcTargets
+    private static final String RULE_TYPE = "android_library"
+
     private final Set<String> srcSet
     private final String manifest
     private final Set<String> providedDeps
@@ -14,13 +15,12 @@ final class AndroidLibraryRule extends BuckRule {
     AndroidLibraryRule(
             String name,
             String packageName,
-            List<String> visibility,
             List<String> deps,
             Set<String> srcSet,
             String manifest,
             Set<String> providedDeps,
             Set<AndroidTarget.ResBundle> resources) {
-        super("android_library", name, visibility, deps)
+        super(RULE_TYPE, name, [], deps)
         this.srcSet = srcSet
         this.manifest = manifest
         this.providedDeps = providedDeps
@@ -31,15 +31,7 @@ final class AndroidLibraryRule extends BuckRule {
     @Override
     protected final void printContent(PrintStream printer) {
         printer.println("\tcustom_package = '${packageName}',")
-        if (srcTargets != null && srcTargets.empty) {
-            printer.println("\tsrcs = glob([")
-        } else {
-            printer.println("\tsrcs = [")
-            for (String target : srcTargets) {
-                printer.println("\t\t'${target}',")
-            }
-            printer.println("\t] + glob([")
-        }
+        printer.println("\tsrcs = glob([")
         for (String src : srcSet) {
             printer.println("\t\t'${src}/**/*.java',")
         }

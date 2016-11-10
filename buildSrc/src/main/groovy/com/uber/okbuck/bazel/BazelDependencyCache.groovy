@@ -9,9 +9,7 @@ final class BazelDependencyCache extends DependencyCache {
     // there, because the JARs and AARs are also in that directory so we cannot create java_import
     // and aar_import rules with the same names. Instead we put the BUILD file in `cacheDirPath/..`.
     static Set<String> external(Set<String> deps) {
-        return deps.collect { String dep ->
-            "//okbuck:${dep.tokenize('/').last()}"
-        }
+        return deps.collect { String dep -> "//okbazel:${dep.tokenize('/').last()}" }
     }
 
     BazelDependencyCache(Project rootProject, String cacheDirPath) {
@@ -19,7 +17,7 @@ final class BazelDependencyCache extends DependencyCache {
         File cacheBuildFile = new File(cacheDir.parent, "BUILD")
         if (!cacheBuildFile.exists()) {
             cacheBuildFile.write """package(default_visibility = ["//visibility:public"])
-load("//okbuck:create_imports.bzl", "create_imports")
+load("//okbazel:create_imports.bzl", "create_imports")
 create_imports()
 """
         }

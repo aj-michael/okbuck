@@ -1,7 +1,6 @@
 package com.uber.okbuck.bazel
 
 import com.uber.okbuck.config.BUCKFile
-import com.uber.okbuck.composer.AndroidBuckRuleComposer
 import com.uber.okbuck.core.model.AndroidAppTarget
 import com.uber.okbuck.core.model.AndroidLibTarget
 import com.uber.okbuck.core.model.JavaAppTarget
@@ -15,19 +14,16 @@ import org.gradle.api.Project
 import static com.uber.okbuck.core.util.ProjectUtil.getTargets
 
 final class BuildFileGenerator {
-
     static Map<Project, BUCKFile> generate(Project rootProject) {
-        rootProject.okbuck.buckProjects.each { Project project ->
+        rootProject.okbuck.buckProjects.each { project ->
             getTargets(project).each { String name, Target target ->
                 target.resolve()
             }
         }
 
-        Map<Project, List<BuckRule>> projectRules =
-                rootProject.okbuck.buckProjects.collectEntries { Project project ->
-                    List<BuckRule> rules = createRules(project)
-                    [project, rules]
-                }
+        def projectRules = rootProject.okbuck.buckProjects.collectEntries { Project project ->
+            [project, createRules(project)]
+        }
 
         return projectRules.findAll { Project project, List<BuckRule> rules ->
             !rules.empty
@@ -36,34 +32,23 @@ final class BuildFileGenerator {
         } as Map<Project, BUCKFile>
     }
 
-    private static List<BuckRule> createRules(Project project) {
-        def rules = []
-        getTargets(project).each { String name, Target target ->
-            switch (ProjectUtil.getType(project)) {
-                case ProjectType.JAVA_LIB:
-                    rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget)
-                    break
-                case ProjectType.JAVA_APP:
-                    rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget)
-                    rules << JavaBinaryRuleComposer.compose(target as JavaAppTarget)
-                    break
-                case ProjectType.ANDROID_LIB:
-                    rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
-                    break
-                case ProjectType.ANDROID_APP:
-                    rules += createRules((AndroidAppTarget) target)
-                    break
-                default:
-                    break
-            }
-        }
-        return rules
-    }
+    // Library targets create one *_library rule. App targets create one *_library rule containing
+    // the sources and resources and one *_binary target that depends on the library target.
+    private static final def targetHandlers = [
+            (ProjectType.JAVA_LIB)   : { target, rules ->
+                rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget) },
+            (ProjectType.JAVA_APP)   : { target, rules ->
+                rules << JavaLibraryRuleComposer.compose(target as JavaLibTarget)
+                rules << JavaBinaryRuleComposer.compose(target as JavaAppTarget) },
+            (ProjectType.ANDROID_LIB): { target, rules ->
+                rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget) },
+            (ProjectType.ANDROID_APP): { target, rules ->
+                rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
+                rules << AndroidBinaryRuleComposer.compose(target as AndroidAppTarget) }]
 
-    private static List<BuckRule> createRules(AndroidAppTarget target) {
-        def rules = []
-        rules << AndroidLibraryRuleComposer.compose(target as AndroidLibTarget)
-        rules << AndroidBinaryRuleComposer.compose(target, [":${AndroidBuckRuleComposer.src(target)}"])
-        return rules
+    private static def createRules(Project project) {
+        getTargets(project).values().inject([]) { rules, target ->
+            targetHandlers[ProjectUtil.getType(project)](target, rules)
+        }
     }
 }
