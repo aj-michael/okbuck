@@ -15,7 +15,7 @@ import static com.uber.okbuck.core.util.ProjectUtil.getTargets
 
 final class BuildFileGenerator {
     static Map<Project, BUCKFile> generate(Project rootProject) {
-        rootProject.okbuck.buckProjects.each { project ->
+        rootProject.okbuck.buckProjects.each { Project project ->
             getTargets(project).each { String name, Target target ->
                 target.resolve()
             }

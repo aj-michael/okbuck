@@ -31,7 +31,7 @@ class OkBazelGradlePlugin implements Plugin<Project> {
 
     // Due a known issue in Bazel (https://github.com/bazelbuild/bazel/issues/1998), the cache
     // path cannot begin with '.' as the okbuck plugin cache does.
-    private static final String CACHE_PATH = "okbazel/cache"
+    static final String CACHE_PATH = "okbazel/cache"
 
     @Override
     void apply(Project project) {
@@ -48,6 +48,7 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                 if (!workspaceFile.exists()) {
                     workspaceFile.write WORKSPACE
                 }
+                OkBuckGradlePlugin.depCache = new BazelDependencyCache(project, CACHE_PATH)
 
                 BuildFileGenerator.generate(project).each { subProject, buildFile ->
                     PrintStream printer = new PrintStream(subProject.file("BUILD")) {
@@ -65,7 +66,6 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                     IOUtils.closeQuietly(printer)
                 }
             }
-            OkBuckGradlePlugin.depCache = new BazelDependencyCache(project, CACHE_PATH)
         }
     }
 }
