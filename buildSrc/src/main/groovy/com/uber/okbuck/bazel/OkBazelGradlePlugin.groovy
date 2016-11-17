@@ -2,7 +2,6 @@ package com.uber.okbuck.bazel
 
 import com.uber.okbuck.OkBuckGradlePlugin
 import com.uber.okbuck.extension.OkBuckExtension
-import org.apache.commons.io.IOUtils
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -63,7 +62,7 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                     }
                     printer.println(BUILD_FILE_HEADER)
                     buildFile.print(printer)
-                    IOUtils.closeQuietly(printer)
+                    printer.close()
                 }
             }
         }

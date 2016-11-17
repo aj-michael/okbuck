@@ -1,14 +1,10 @@
 package com.uber.okbuck.bazel
 
-import com.google.common.collect.Iterables
 import com.uber.okbuck.core.dependency.DependencyCache
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
-import org.gradle.internal.impldep.com.google.common.collect.ImmutableCollection
-import org.gradle.internal.impldep.com.google.common.collect.ImmutableSortedSet
-import org.gradle.internal.impldep.com.google.common.collect.Ordering
 
 final class BazelDependencyCache extends DependencyCache {
 
@@ -59,7 +55,8 @@ final class BazelDependencyCache extends DependencyCache {
         resolvedDependency.parents.each { ResolvedDependency parent ->
             artifacts += resolvedDependency.getArtifacts(parent)
         }
-        ResolvedArtifact artifact = Iterables.getOnlyElement(artifacts)
+
+        ResolvedArtifact artifact = ++artifacts.iterator()
         if (artifact.id.componentIdentifier.displayName.contains(" ")) {
             // This is a local dependency. It is not in the cache.
             return
@@ -78,7 +75,7 @@ final class BazelDependencyCache extends DependencyCache {
 """
         }
         resolvedDependency.children.collect { child ->
-            getRuleName(Iterables.getOnlyElement(child.getArtifacts(resolvedDependency)))
+            getRuleName(++child.getArtifacts(resolvedDependency).iterator())
         }.unique().sort().each { String exportName ->
             buildFile.append "        ':${exportName}',\n"
         }
