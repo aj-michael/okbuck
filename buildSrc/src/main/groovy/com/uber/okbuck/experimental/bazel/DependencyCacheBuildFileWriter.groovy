@@ -19,7 +19,7 @@ class DependencyCacheBuildFileWriter {
         Set<String> visitedDependencies = new HashSet<>()
         cache.rootProject.okbuck.buckProjects.each { Project project ->
             project.configurations.getAsMap().each { String name, Configuration config ->
-                if (name.toLowerCase().endsWith("compile")) {
+                if (true || name.toLowerCase().endsWith("compile")) {
                     config.resolvedConfiguration.getFirstLevelModuleDependencies().each {
                         ResolvedDependency resolvedDependency ->
                             writeBuildRules(resolvedDependency, buildFile, visitedDependencies)
