@@ -1,4 +1,4 @@
-package com.uber.okbuck.bazel
+package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.core.dependency.ExternalDependency

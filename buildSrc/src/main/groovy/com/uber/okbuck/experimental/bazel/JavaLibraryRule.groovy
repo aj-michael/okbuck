@@ -1,4 +1,4 @@
-package com.uber.okbuck.bazel
+package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.rule.BuckRule
 
