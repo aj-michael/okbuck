@@ -1,6 +1,7 @@
 package com.uber.okbuck.bazel
 
 import com.uber.okbuck.OkBuckGradlePlugin
+import com.uber.okbuck.core.dependency.DependencyCache
 import com.uber.okbuck.extension.OkBuckExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -32,6 +33,13 @@ class OkBazelGradlePlugin implements Plugin<Project> {
     // path cannot begin with '.' as the okbuck plugin cache does.
     static final String CACHE_PATH = "okbazel/cache"
 
+    // The okbuck cache contains a BUCK file at `cacheDirPath/BUCK`. We cannot put a BUILD file
+    // there, because the JARs and AARs are also in that directory so we cannot create java_import
+    // and aar_import rules with the same names. Instead we put the BUILD file in `cacheDirPath/..`.
+    static Set<String> external(Set<String> deps) {
+        return deps.collect { String dep -> "//okbazel:${dep.tokenize('/').last()}" }
+    }
+
     @Override
     void apply(Project project) {
         project.extensions.create("okbuck", OkBuckExtension, project)
@@ -47,7 +55,8 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                 if (!workspaceFile.exists()) {
                     workspaceFile.write WORKSPACE
                 }
-                OkBuckGradlePlugin.depCache = new BazelDependencyCache(project, CACHE_PATH)
+                OkBuckGradlePlugin.depCache =
+                        new DependencyCache(project, CACHE_PATH, true, false, true)
 
                 BuildFileGenerator.generate(project).each { subProject, buildFile ->
                     PrintStream printer = new PrintStream(subProject.file("BUILD")) {
@@ -64,6 +73,13 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                     buildFile.print(printer)
                     printer.close()
                 }
+
+                File cacheBuildFile = new File(OkBuckGradlePlugin.depCache.cacheDir.parent, "BUILD")
+                if (cacheBuildFile.exists()) {
+                    cacheBuildFile.delete()
+                }
+                new DependencyCacheBuildFileWriter(OkBuckGradlePlugin.depCache)
+                        .write(cacheBuildFile)
             }
         }
     }

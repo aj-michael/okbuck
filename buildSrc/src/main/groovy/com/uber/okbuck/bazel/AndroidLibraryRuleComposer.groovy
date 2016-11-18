@@ -9,10 +9,10 @@ final class AndroidLibraryRuleComposer extends AndroidBuckRuleComposer {
         List<String> deps = new ArrayList<>();
         Set<String> providedDeps = []
 
-        deps.addAll(BazelDependencyCache.external(target.main.externalDeps))
+        deps.addAll(OkBazelGradlePlugin.external(target.main.externalDeps))
         deps.addAll(targets(target.main.targetDeps))
 
-        providedDeps.addAll(BazelDependencyCache.external(target.apt.externalDeps))
+        providedDeps.addAll(OkBazelGradlePlugin.external(target.apt.externalDeps))
         providedDeps.addAll(targets(target.apt.targetDeps))
         providedDeps.removeAll(deps)
 

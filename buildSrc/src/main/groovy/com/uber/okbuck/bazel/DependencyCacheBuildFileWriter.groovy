@@ -1,32 +1,23 @@
 package com.uber.okbuck.bazel
 
 import com.uber.okbuck.core.dependency.DependencyCache
+import com.uber.okbuck.core.dependency.ExternalDependency
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
 
-final class BazelDependencyCache extends DependencyCache {
+class DependencyCacheBuildFileWriter {
+    private final DependencyCache cache
 
-    // The okbuck cache contains a BUCK file at `cacheDirPath/BUCK`. We cannot put a BUILD file
-    // there, because the JARs and AARs are also in that directory so we cannot create java_import
-    // and aar_import rules with the same names. Instead we put the BUILD file in `cacheDirPath/..`.
-    static Set<String> external(Set<String> deps) {
-        return deps.collect { String dep -> "//okbazel:${dep.tokenize('/').last()}" }
+    DependencyCacheBuildFileWriter(DependencyCache cache) {
+        this.cache = cache
     }
 
-    BazelDependencyCache(Project rootProject, String cacheDirPath) {
-        super(rootProject, cacheDirPath, true, false, true)
-        File cacheBuildFile = new File(cacheDir.parent, "BUILD")
-        if (!cacheBuildFile.exists()) {
-            writeCacheBuildFile(rootProject, new File(cacheDir.parent, "BUILD"))
-        }
-    }
-
-    private static writeCacheBuildFile(Project rootProject, File buildFile) {
+    void write(File buildFile) {
         buildFile.append """package(default_visibility = ["//visibility:public"])\n\n"""
         Set<String> visitedDependencies = new HashSet<>()
-        rootProject.okbuck.buckProjects.each { Project project ->
+        cache.rootProject.okbuck.buckProjects.each { Project project ->
             project.configurations.getAsMap().each { String name, Configuration config ->
                 if (name.toLowerCase().endsWith("compile")) {
                     config.resolvedConfiguration.getFirstLevelModuleDependencies().each {
@@ -38,19 +29,10 @@ final class BazelDependencyCache extends DependencyCache {
         }
     }
 
-    private static String stripResolvedDependencyScope(ResolvedDependency resolvedDependency) {
-        return resolvedDependency.toString().split(";")[0]
-    }
-
-    private static writeBuildRules(
+    private writeBuildRules(
             ResolvedDependency resolvedDependency,
             File buildFile,
             Set<String> visitedDependencies) {
-        if (visitedDependencies.contains(stripResolvedDependencyScope(resolvedDependency))) {
-            return
-        } else {
-            visitedDependencies.add(stripResolvedDependencyScope(resolvedDependency))
-        }
         Set<ResolvedArtifact> artifacts = []
         resolvedDependency.parents.each { ResolvedDependency parent ->
             artifacts += resolvedDependency.getArtifacts(parent)
@@ -61,16 +43,23 @@ final class BazelDependencyCache extends DependencyCache {
             // This is a local dependency. It is not in the cache.
             return
         }
+
+        if (!inCache(artifact) || visitedDependencies.contains(getRuleName(artifact))) {
+            return
+        } else {
+            visitedDependencies.add(getRuleName(artifact))
+        }
+
         if (artifact.getExtension().endsWith("aar")) {
             buildFile.append """aar_import(
     name = '${getRuleName(artifact)}',
-    aar = 'cache/${getRuleName(artifact)}',
+    aar = '${getRelativePath(artifact)}',
     exports = [
 """
         } else if (artifact.getExtension().endsWith("jar")) {
             buildFile.append """java_import(
     name = '${getRuleName(artifact)}',
-    jars = ['cache/${getRuleName(artifact)}'],
+    jars = ['${getRelativePath(artifact)}'],
     exports = [
 """
         }
@@ -86,8 +75,25 @@ final class BazelDependencyCache extends DependencyCache {
         }
     }
 
-    private static String getRuleName(ResolvedArtifact artifact) {
-        String displayName = artifact.id.componentIdentifier.displayName
-        return displayName.replaceFirst(":", ".").replace(":", "-") + ".${artifact.getExtension()}"
+    private String getRuleName(ResolvedArtifact artifact) {
+        String[] pieces = getRelativePath(artifact).split("/")
+        return pieces[pieces.length - 1]
+    }
+
+    private String getRelativePath(ResolvedArtifact artifact) {
+        return cache.get(toExternalDependency(artifact)).split("/", 2)[1]
+    }
+
+    private boolean inCache(ResolvedArtifact artifact) {
+        try {
+            cache.get(toExternalDependency(artifact))
+            return true
+        } catch (NullPointerException ignored) {
+            return false
+        }
+    }
+
+    private static ExternalDependency toExternalDependency(ResolvedArtifact artifact) {
+        return new ExternalDependency(artifact.id.componentIdentifier.displayName, artifact.file)
     }
 }
