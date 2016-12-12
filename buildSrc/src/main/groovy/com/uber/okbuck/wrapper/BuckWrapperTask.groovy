@@ -22,13 +22,17 @@ class BuckWrapperTask extends DefaultTask {
     @Input
     List<String> sourceRoots
 
-    File wrapper = project.file('buckw')
+    @Input
+    File wrapperFile
+
+    @Input
+    String wrapperTemplate
 
     @TaskAction
     void installWrapper() {
-        FileUtil.copyResourceToProject("wrapper/BUCKW_TEMPLATE", wrapper)
+        FileUtil.copyResourceToProject(wrapperTemplate, wrapperFile)
 
-        String outputText = wrapper.text
+        String outputText = wrapperFile.text
         outputText = outputText
                 .replaceFirst('template-creation-time', new Date().toString())
                 .replaceFirst('template-custom-buck-repo', repo)
@@ -37,8 +41,8 @@ class BuckWrapperTask extends DefaultTask {
                 .replaceFirst('template-watch', toWatchmanMatchers(watch))
                 .replaceFirst('template-source-roots', toWatchmanMatchers(sourceRoots))
 
-        wrapper.text = outputText
-        wrapper.setExecutable(true)
+        wrapperFile.text = outputText
+        wrapperFile.setExecutable(true)
     }
 
     static String toWatchmanMatchers(List<String> wildcardPatterns) {

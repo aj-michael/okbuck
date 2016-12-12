@@ -122,6 +122,8 @@ class OkBuckGradlePlugin implements Plugin<Project> {
                 keep = wrapper.keep
                 watch = wrapper.watch
                 sourceRoots = wrapper.sourceRoots
+                wrapperFile = project.file("buckw")
+                wrapperTemplate = "wrapper/BUCKW_TEMPLATE"
             })
             buckWrapper.setGroup(GROUP)
             buckWrapper.setDescription("Create buck wrapper")
