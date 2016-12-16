@@ -75,7 +75,7 @@ class OkBazelGradlePlugin implements Plugin<Project> {
                         @Override
                         public void println(String s) {
                             // BUILD files are typically space-delimited. Since
-                            // com.uber.okbuck.rule.BuckRule uses tabs and all the Bazel rules
+                            // com.uber.okbuck.rule.base.BuckRule uses tabs and all the Bazel rules
                             // inherit from that rule, all of the Bazel rules produce tabs. Here we
                             // convert them to spaces.
                             super.println(s.replaceAll("\t", "    "))

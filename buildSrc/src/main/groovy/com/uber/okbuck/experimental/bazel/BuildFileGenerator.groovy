@@ -1,14 +1,14 @@
 package com.uber.okbuck.experimental.bazel
 
 import com.uber.okbuck.config.BUCKFile
-import com.uber.okbuck.core.model.AndroidAppTarget
-import com.uber.okbuck.core.model.AndroidLibTarget
-import com.uber.okbuck.core.model.JavaAppTarget
-import com.uber.okbuck.core.model.JavaLibTarget
-import com.uber.okbuck.core.model.ProjectType
-import com.uber.okbuck.core.model.Target
+import com.uber.okbuck.core.model.android.AndroidAppTarget
+import com.uber.okbuck.core.model.android.AndroidLibTarget
+import com.uber.okbuck.core.model.base.ProjectType
+import com.uber.okbuck.core.model.base.Target
+import com.uber.okbuck.core.model.java.JavaAppTarget
+import com.uber.okbuck.core.model.java.JavaLibTarget
 import com.uber.okbuck.core.util.ProjectUtil
-import com.uber.okbuck.rule.BuckRule
+import com.uber.okbuck.rule.base.BuckRule
 import org.gradle.api.Project
 
 import static com.uber.okbuck.core.util.ProjectUtil.getTargets

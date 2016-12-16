@@ -1,7 +1,7 @@
 package com.uber.okbuck.experimental.bazel
 
-import com.uber.okbuck.core.model.AndroidTarget
-import com.uber.okbuck.rule.BuckRule
+import com.uber.okbuck.core.model.android.AndroidTarget
+import com.uber.okbuck.rule.base.BuckRule
 
 final class BazelAndroidLibraryRule extends BuckRule {
     private static final String RULE_TYPE = "android_library"

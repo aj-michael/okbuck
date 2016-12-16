@@ -1,6 +1,6 @@
 package com.uber.okbuck.experimental.bazel
 
-import com.uber.okbuck.rule.BuckRule
+import com.uber.okbuck.rule.base.BuckRule
 
 class BazelJavaLibraryRule extends BuckRule {
     private static final String RULE_TYPE = "java_library"
